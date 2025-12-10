@@ -44,6 +44,34 @@ class MoviesController < ApplicationController
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
   end
+  def search_tmdb
+    search_terms = params[:search_terms]
+  
+    if search_terms.blank?
+      flash[:alert] = "Please fill in all required fields!"
+      redirect_to search_tmdb_path and return
+    end
+  
+    @movies = Movie.find_in_tmdb(search_terms)
+  
+    if @movies.empty?
+      flash[:warning] = "No movies found with given parameters!"
+      redirect_to search_tmdb_path
+    else
+      render 'search_tmdb'
+    end
+  end
+  
+  def add_movie
+    @movie = Movie.create!(
+      title: params[:title],
+      release_date: params[:release_date],
+      rating: params[:rating]
+    )
+    flash[:notice] = "#{@movie.title} was successfully added to RottenPotatoes."
+    redirect_to search_tmdb_path
+  end
+  
 
   private
 

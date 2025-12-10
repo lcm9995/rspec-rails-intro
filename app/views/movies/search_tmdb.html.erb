@@ -1,18 +1,14 @@
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
-
 <h2>Search in TMDb</h2>
-<%# Part 5 here %>
 
 <div class="search-container">
-<%# Part 1 here %>
-<%= form_tag <%# fill in here #%> do %>
-    <label for="searchMovieName">Movie Name</label>
-    <%= text_field_tag 'title', nil, class: "form-control", id: "movie_title_field", placeholder: "Manhunter", id: "movie_title_field"%> 
-    <label for="searchReleaseDateField">Release Year</label>
-    <%= text_field_tag 'release_year', nil, class: "form-control", id: "movie_year_field", placeholder: "1986", id: "movie_year_field"%>
-  
+
+<%= form_tag search_tmdb_path, method: :get, id: 'tmdb_form' do %>
+  <label for="searchMovieName">Movie Name</label>
+  <%= text_field_tag 'search_terms', nil, class: "form-control", id: "movie_title_field", placeholder: "Manhunter" %> 
+    
+  <label for="searchReleaseDateField">Release Year</label>
+  <%= text_field_tag 'release_year', nil, class: "form-control", id: "movie_year_field", placeholder: "1986" %>
+
   <div class="form-check">
     <%= radio_button_tag 'language', 'en', false, class: "form-check-input" %>
     <label class="form-check-label" for="language_en">English Only</label>
@@ -22,7 +18,51 @@
     <%= radio_button_tag 'language', 'all', true, class: "form-check-input" %>
     <label class="form-check-label" for="language_all">All Languages</label>
   </div>
+
   <%= submit_tag 'Search', id: 'tmdb_submit', class: 'btn btn-warning col-2' %>
-  
 <% end %>
+
+<br>
+<%= link_to 'Back to Home', movies_path, class: "btn btn-secondary mt-2" %>
+
+<!-- Flash Messages (Bootstrap Alerts) -->
+<% flash.each do |key, value| %>
+  <div class="alert alert-<%= key %> alert-dismissible fade show mt-3" role="alert">
+    <%= value %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% end %>
+
+<!-- Search Results Table -->
+<% if @movies.present? %>
+  <table id="search_movies" class="table table-striped mt-4">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Release Date</th>
+        <th>Overview</th>
+        <th>Add?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @movies.each do |movie| %>
+        <tr>
+          <td><%= movie["title"] %></td>
+          <td><%= movie["release_date"] %></td>
+          <td><%= movie["overview"] %></td>
+          <td>
+            <%= form_tag add_movie_path, method: :post do %>
+              <%= hidden_field_tag :title, movie["title"] %>
+              <%= hidden_field_tag :release_date, movie["release_date"] %>
+              <%= hidden_field_tag :overview, movie["overview"] %>
+              <%= hidden_field_tag :rating, "R" %>
+              <%= submit_tag "Add Movie", class: "btn btn-success" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
 </div>
